@@ -14,20 +14,22 @@ $(document).keydown(function(event) {
     if (!firstKeyPress && event.originalEvent.key) {
         console.log("Key was pressed");
         nextSequence();
-        $("#level-title").text("Level 0");
+        $("#level-title").text("Level " + level);
         firstKeyPress=true;
     }
 });
 
 // Listen for a button click and then get the user chosen color; play the 
 // sound and push the color to the user selected array
-$('.btn').on('click', function() {
+$('.btn').click(function() {
     
-    var userChosenColor = $(this)[0].id;
-    playSound(userChosenColor);
-    animatePress(userChosenColor);
+    var userChosenColor = $(this).attr("id");
+    
     userClickedPattern.push(userChosenColor);
     console.log("user Clicked this", userClickedPattern);
+
+    playSound(userChosenColor);
+    animatePress(userChosenColor);
     checkAnswer(userClickedPattern.length-1);
 });
 
@@ -44,24 +46,21 @@ function animatePress(currentColor) {
 function checkAnswer(currentLevel) {
     // check to see If the most current answer is correct 
     if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
-        console.log("Success");
-        // if its correct, then check to see if the arrays are the right length and if the elemeents are in the correct order
-        if (gamePattern.length === userClickedPattern.length) {
-            for (var i =0;i<gamePattern.length;i++) {
-                if (gamePattern[i]===userClickedPattern[i]) {
-                    console.log(`Answer ${i} is correct!`);
-                    setTimeout(function() {
-                        nextSequence()
-                    }, 1000)
-                } else {
-                    console.log(`Answer ${i} is wrong.`)
-                }
-            }
-    } else {
-        console.log("Wrong")
-    }
-    }
-}
+        console.log("Most current answer is correct.");
+        console.log("Game pattern:", gamePattern);
+        console.log("User Pattern", userClickedPattern);
+        
+        if (correctOrder(gamePattern, userClickedPattern)) {
+            setTimeout(function() {
+                nextSequence()
+            }, 1000)  
+        } else {
+            console.log("answer is incorrect.");
+            
+        }
+
+        }
+    } 
 
 function playSound (color) {
     const sound = new Audio("./sounds/"+color+".mp3");
@@ -71,8 +70,9 @@ function playSound (color) {
 // Choose a random whole number between 0 and 3
 function nextSequence () {
     userClickedPattern = [];
+    // Increase level by one.
     level++;
-    $(".level-title").text(`Level ${level}`);
+    $("#level-title").text("Level " + level);
 
     // Chose the random color and push to the game pattern array
     var randomNumber = Math.floor(Math.random()*4);
@@ -83,3 +83,13 @@ function nextSequence () {
     // When the randomChosenColor is clicked, blink
     $("#"+randomChosenColor).fadeOut(100).fadeIn(100);
 }
+
+function correctOrder (array1, array2) {
+     // if its correct, then check to see if the arrays are the right length and if the elements are in the correct order
+    for (var i =0;i<array1.length;i++) {
+        if (array1.length === array2.length && array1[i]===array2[i]) {
+            console.log(`Answer ${i} is correct!`);
+            return true;
+            }
+        } 
+    }   
